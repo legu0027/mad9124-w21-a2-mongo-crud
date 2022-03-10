@@ -4,16 +4,26 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "MAD9124",
-    "W21"
+    "W22"
   ],
   "author": "",
   "contributors": [
-    "Robert McKenney <mckennr@algonquincollege.com>"
+    "Fernando Leguia <legu0027@algonquinlive.com>"
   ],
   "license": "ISC",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "express": "^4.17.3",
+    "mongoose": "^6.2.3",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
 }
