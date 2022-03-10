@@ -2,6 +2,21 @@
 'use strict'
 // load dependencies
 
+const mongoose = require("mongoose");
+mongoose
+  .connect("mongodb://localhost:27017/cListR_S2", {
+    useNewUrlParser: true
+  })
+  .then(() => console.log("Connected to MongoDB ..."))
+  .catch((err) => {
+    console.error("Problem connecting to MongoDB ...", err.message);
+    process.exit(1);
+  });
+
+  
+
+
+
 const morgan = require('morgan')
 const express = require('express')
 const studentsRouter = require('./routes/studentsRouter.js')

@@ -1,4 +1,5 @@
 const { students } = require("../data/students.js");
+const Student = require("../models/Student");
 const express = require("express");
 const router = express.Router();
 const validateStudentId = require("../middleware/validateStudentId.js");
@@ -13,14 +14,17 @@ router.get("/:studentId", (req, res) => {
   res.json({ data: formatResponseData("students", students[req.studentIndex]) });
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const { data } = req.body;
   if (data?.type === "students") {
-    const newStudent = {
-      ...data.attributes,
-      id: Date.now(),
-    };
-    students.push(newStudent);
+    // const newStudent = {
+    //   ...data.attributes,
+    //   id: Date.now(),
+    // };
+    // students.push(newStudent);
+    let newStudent = new Student(data.attributes);
+    await newStudent.save();
+
     res.status(201).json({ data: formatResponseData("students", newStudent) });
   } else {
     res.status(400).json({
