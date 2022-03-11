@@ -13,6 +13,7 @@ const express = require('express')
 const studentsRouter = require('./routes/studentsRouter.js')
 const coursesRouter = require('./routes/coursesRouter.js')
 const sanitizeBody = require('./middleware/sanitizeBody')
+const sanitizeMongo = require('express-mongo-sanitize')
 
 // create the express app
 const app = express()
@@ -22,6 +23,7 @@ app.use(morgan('tiny'))
 app.use(express.json())
 
 app.use('/', sanitizeBody)
+app.use(sanitizeMongo())
 
 
 
