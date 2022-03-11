@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "NODE_ENV=production PORT=443 node app.js",
+    "dev": "DEBUG=mad9124-w21-a2-mongo-crud*,sanitize* NODE_ENV=dev nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -18,9 +19,11 @@
   "license": "ISC",
   "private": true,
   "dependencies": {
+    "debug": "^4.3.3",
     "express": "^4.17.3",
     "mongoose": "^6.2.3",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "xss": "^1.0.11"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
