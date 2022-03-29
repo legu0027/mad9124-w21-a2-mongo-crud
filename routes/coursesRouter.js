@@ -3,79 +3,105 @@ const express = require("express");
 const router = express.Router();
 const validateCourseId = require("../middleware/validateCourseId.js");
 
-router.use("/:courseId", validateCourseId);
-
-router.get("/", (req, res) => {
-  res.json({ data: courses.map((course) => formatResponseData("courses", course)) });
+router.get("/", async (req, res) => {
+  const courses = await Course.find();
+  res.json({ data: courses });
 });
 
-router.get("/:courseId", (req, res) => {
-  res.json({ data: formatResponseData("courses", courses[req.courseIndex]) });
+router.get("/:courseId", async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.courseId)
+    if (!course) throw new Error('Resource not found')
+    res.send({ data: course });
+  } catch (err) {
+    sendResourceNotFound(req, res)
+  }
 });
 
-router.post("/", (req, res) => {
-  const { data } = req.body;
-  if (data?.type === "courses") {
-    const newcourse = {
-      ...data.attributes,
-      id: Date.now(),
-    };
-    courses.push(newcourse);
-    res.status(201).json({ data: formatResponseData("courses", newcourse) });
+router.post("/",  async (req, res) => {
+  const attributes = req.sanitizedBody;
+    let newCourse = new Course(attributes);
+    await newCourse.save();
+
+  if (newCourse) {
+    res.status(201).send({ data: newCourse });
   } else {
     res.status(400).json({
       errors: [
         {
           status: "400",
           title: "schema validation error",
-          detail: `Expected resource type to be 'courses', got '${data?.type}'`,
-          source: {
-            pointer: "/data/type",
-          },
+          detail: `Some error happened, please try again`,
         },
       ],
     });
   }
 });
 
-router.put("/:courseId", (req, res) => {
-  const id = parseInt(req.params.courseId);
-
-  const updatedcourse = {
-    ...req.body?.data?.attributes,
-    id,
-  };
-  courses[req.courseIndex] = updatedcourse;
-  res.json({ data: formatResponseData("courses", updatedcourse) });
+router.put("/:courseId", async (req, res) => {
+  try {
+    const { _id, ...otherAttributes } = req.sanitizedBody;
+    const course = await Course.findByIdAndUpdate(
+      req.params.courseId,
+      { _id: req.params.courseId, ...otherAttributes },
+      {
+        new: true,
+        overwrite: true,
+        runValidators: true,
+      }
+    );
+    if (!course) throw new Error("Resource not found");
+    res.send({ data: course });
+  } catch (err) {
+    sendResourceNotFound(req, res);
+  }
 });
 
-router.patch("/:courseId", (req, res) => {
-  const id = parseInt(req.params.courseId);
-
-  // process request
-  const updatedcourse = Object.assign(
-    {},
-    courses[req.courseIndex],
-    req.body?.data?.attributes,
-    { id }
-  );
-  courses[req.courseIndex] = updatedcourse;
-  res.json({ data: formatResponseData("cars", updatedcourse) });
+router.patch("/:courseId", async (req, res) => {
+  try {
+    const { _id, ...otherAttributes } = req.sanitizedBody;
+    const course = await Course.findByIdAndUpdate(
+      req.params.courseId,
+      { _id: req.params.courseId, ...otherAttributes },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    if (!course) throw new Error("Resource not found");
+    res.send({ data: course });
+  } catch (err) {
+    sendResourceNotFound(req, res);
+  }
 });
 
-router.delete("/:courseId", (req, res) => {
-  const id = parseInt(req.params.courseId);
-  const deletedcourse = courses.splice(req.courseIndex, 1)[0];
-  res.json({
-    data: formatResponseData("courses", deletedcourse),
-    meta: { message: `course with id: ${id} successfully deleted.` },
-  });
+router.delete("/:courseId", async (req, res) => {
+  try {
+    const course = await Course.findByIdAndRemove(req.params.courseId);
+    if (!course) throw new Error("Resource not found");
+    res.send({ data: course });
+  } catch (err) {
+    sendResourceNotFound(req, res);
+  }
+  
 });
 
 
 function formatResponseData(type, resource) {
   const { id, ...attributes } = resource;
   return { type, id, attributes };
+}
+
+function sendResourceNotFound(req, res) {
+  res.status(404).send({
+    errors: [
+      {
+        status: "404",
+        title: "Resource does not exist",
+        description: `We could not find a course with id: ${req.params.courseId}`,
+      },
+    ],
+  });
 }
 
 module.exports = router;
