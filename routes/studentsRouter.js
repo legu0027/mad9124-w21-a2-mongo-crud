@@ -25,7 +25,7 @@ router.post("/", async (req, res) => {
     let newStudent = new Student(attributes);
     await newStudent.save();
 
-  if (!newStudent) {
+  if (newStudent) {
     res.status(201).send({ data: newStudent });
   } else {
     res.status(400).json({
